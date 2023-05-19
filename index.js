@@ -30,6 +30,16 @@ async function run() {
 
     const toyCollection = client.db('toyUser').collection('addToy')
 
+    app.get("/addToy", async(req, res) =>{
+      console.log(req.query.email)
+      let query = {}
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const result = await toyCollection.find(query).toArray()
+      res.send(result)
+    })
+
     app.post('/addToy', async(req, res) =>{
       const newToy = req.body
       console.log(newToy)
