@@ -30,6 +30,26 @@ async function run() {
 
     const toyCollection = client.db('toyUser').collection('addToy')
 
+    //all Toy
+    app.get("/allToy", async(req, res) =>{
+      const cursor = toyCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    //category
+    app.get("/allToys/:text", async(req, res) =>{
+      console.log(req.params.text)
+      if(req.params.text == "marvel" || req.params.text == "avengers" || req.params.text == "star wars"){
+        const result = await toyCollection.find({subcategory: req.params.text}).toArray()
+        res.send(result)
+        return
+      }
+      const result = await toyCollection.find({}).toArray()
+      res.send(result)
+    })
+
+    //my toy
     app.get("/addToy", async(req, res) =>{
       console.log(req.query.email)
       let query = {}
@@ -40,6 +60,7 @@ async function run() {
       res.send(result)
     })
 
+    //for update
     app.get("/addToy/:id", async(req, res) =>{
       const id = req.params.id 
       const query = {_id: new ObjectId(id)}
@@ -47,6 +68,7 @@ async function run() {
       res.send(result)
     })
 
+    //database
     app.post('/addToy', async(req, res) =>{
       const newToy = req.body
       console.log(newToy)
@@ -54,6 +76,7 @@ async function run() {
       res.send(result)
     })
 
+    //update
     app.put("/addToy/:id", async(req, res) =>{
       const id = req.params.id 
       const filter = {_id: new ObjectId(id)}
@@ -72,11 +95,11 @@ async function run() {
           description: updatedToy.description
         }
       }
-
       const result = await toyCollection.updateOne(filter, toy, options)
       res.send(result)
     })
 
+    //delete
     app.delete("/addToy/:id", async(req, res) =>{
       const id = req.params.id 
       const query = {_id: new ObjectId(id)}
