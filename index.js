@@ -26,20 +26,20 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const toyCollection = client.db('toyUser').collection('addToy')
 
     //all Toy
     app.get("/allToy", async(req, res) =>{
-      const cursor = toyCollection.find()
+      const cursor = toyCollection.find().limit(20)
       const result = await cursor.toArray()
       res.send(result)
     })
 
     //category
     app.get("/allToys/:text", async(req, res) =>{
-      console.log(req.params.text)
+      // console.log(req.params.text)
       if(req.params.text == "marvel" || req.params.text == "avengers" || req.params.text == "star wars"){
         const result = await toyCollection.find({subcategory: req.params.text}).toArray()
         res.send(result)
@@ -50,13 +50,26 @@ async function run() {
     })
 
     //my toy
-    app.get("/addToy", async(req, res) =>{
+    // app.get("/addToy", async(req, res) =>{
+    //   console.log(req.query.email)
+    //   let query = {}
+    //   if(req.query?.email){
+    //     query = {email: req.query.email}
+    //   }
+    //   const result = await toyCollection.find(query).toArray()
+    //   res.send(result)
+    // })
+
+      //  //my toy
+     app.get("/addToy", async(req, res) =>{
       console.log(req.query.email)
       let query = {}
       if(req.query?.email){
         query = {email: req.query.email}
       }
-      const result = await toyCollection.find(query).toArray()
+      const sort = req.query.sort == 'ascending' ? 1 : -1
+      const result = await toyCollection.find(query).sort({price:sort}).toArray()
+      console.log(result)
       res.send(result)
     })
 
@@ -84,13 +97,7 @@ async function run() {
       const updatedToy = req.body
       const toy = {
         $set:{
-          name: updatedToy.name, 
-          photo: updatedToy.photo, 
-          seller: updatedToy.seller, 
-          email: updatedToy.email, 
-          subcategory: updatedToy.subcategory, 
           price: updatedToy.price, 
-          rating: updatedToy.rating,
           quantity: updatedToy.quantity,
           description: updatedToy.description
         }
